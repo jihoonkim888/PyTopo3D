@@ -417,7 +417,7 @@ Below is the roadmap for future releases of PyTopo3D:
 
 ### Version 0.4.0 (Pre-release Stabilization)
 - **API Stabilization**: Finalize API design for 1.0 release
-- **Comprehensive Testing**: Extensive test suite for all components (probably with `pytest`)
+- **Comprehensive Testing**: Extensive test suite for all components (probably with `pytest`). *An initial `pytest` suite (CPU core + packaging guards) and GitHub Actions CI landed early, in 0.1.1.*
 - **Performance Benchmarking**: Establish baseline performance metrics
 
 ### Version 1.0.0 (Stable Release)
