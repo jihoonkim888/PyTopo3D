@@ -68,10 +68,13 @@ def optimality_criteria_update(
         (updated design variables, maximum change)
     """
     # Check if inputs are already on GPU
-    inputs_on_gpu = HAS_CUPY and any(
-        isinstance(arr, cp.ndarray) 
-        for arr in [x, dc, dv, obstacle_mask, Hs]
-    ) or isinstance(H, cusp.csr_matrix)
+    inputs_on_gpu = HAS_CUPY and (
+        any(
+            isinstance(arr, cp.ndarray)
+            for arr in [x, dc, dv, obstacle_mask, Hs]
+        )
+        or isinstance(H, cusp.csr_matrix)
+    )
     
     # Determine whether to use GPU based on inputs and use_gpu flag
     use_gpu_for_calc = (use_gpu and HAS_CUPY) or inputs_on_gpu
