@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytopo3d"
-version = "0.1.1"
+version = "0.1.2"
 description = "3D SIMP Topology Optimization Framework for Python"
 readme = "README.md"
 authors = [
