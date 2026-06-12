@@ -149,7 +149,11 @@ def top3d(
     # ─────────────────────── main loop
     loop, change, c_prev = 0, 1.0, np.inf
     if save_history:
-        history_frequency = max(history_frequency, 500)
+        # Cap the interval at 500 so even long runs save frames, while still honouring
+        # a smaller requested frequency. `max(...)` here forced a *minimum* interval of
+        # 500, so any run converging in <500 iterations saved only the first and last
+        # frame (issue #8: "GIF animation limited to 2 frames").
+        history_frequency = min(history_frequency, 500)
         if gpu:
             history["density_history"].append(cp.asnumpy(xPhys_gpu))
         else:

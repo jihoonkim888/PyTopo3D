@@ -88,3 +88,15 @@ def test_determinism(small_case):
     a = top3d(**small_case)
     b = top3d(**small_case)
     assert np.array_equal(a, b)
+
+
+def test_save_history_records_multiple_frames():
+    """Regression for issue #8: a short run with save_history must record more than just
+    the first and last frame. The old `max(history_frequency, 500)` floor collapsed any
+    run converging in under 500 iterations to ~2 GIF frames."""
+    _, history = top3d(
+        nelx=12, nely=6, nelz=6, volfrac=0.3, penal=3.0, rmin=1.5, disp_thres=0.5,
+        tolx=0.01, maxloop=40, save_history=True, history_frequency=10, use_gpu=False,
+    )
+    frames = len(history["density_history"])
+    assert frames > 2, f"expected several frames, got {frames} (issue #8 regression)"
