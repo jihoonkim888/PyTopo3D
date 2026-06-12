@@ -1,0 +1,50 @@
+name: Publish to PyPI
+
+# Publishes the package to PyPI when a GitHub Release is published.
+# Uses PyPI Trusted Publishing (OIDC) -- no API token is stored in the repo.
+#
+# One-time setup on PyPI (https://pypi.org/manage/project/pytopo3d/settings/publishing/):
+#   add a Trusted Publisher with
+#     Owner:            jihoonkim888
+#     Repository name:  PyTopo3D
+#     Workflow name:    publish.yml
+#     Environment name: pypi
+#
+# To release: bump `version` in pyproject.toml, then create a GitHub Release whose
+# tag is e.g. `v0.1.1`. PyPI rejects re-uploading an existing version, so the version
+# must be bumped before each release.
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Build and publish to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pytopo3d/
+    permissions:
+      id-token: write  # required for Trusted Publishing (OIDC)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Check distribution metadata
+        run: |
+          pip install twine
+          twine check dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
