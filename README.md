@@ -323,7 +323,7 @@ pip install pytopo3d[gpu]
 pip install -e ".[gpu]"
 ```
 
-This will install the required `cupy` dependency. Make sure to use the appropriate CUDA version that matches your system (e.g., `cupy-cuda11x` for CUDA 11.x, `cupy-cuda12x` for CUDA 12.x).
+This installs CuPy with the `[ctk]` extra, which bundles the CUDA toolkit (libraries and headers) as wheels so GPU acceleration works without a separate system CUDA installation. The `[gpu]` extra targets CUDA 12.x; if you are on CUDA 11.x, install `cupy-cuda11x[ctk]` manually instead.
 
 #### Enabling GPU Acceleration
 
