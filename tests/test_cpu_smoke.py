@@ -7,18 +7,23 @@ tests exercise exactly those code paths end to end.
 """
 
 import numpy as np
+import pytest
 import scipy.sparse as sp
 
 from pytopo3d.core.optimizer import HAS_CUPY, top3d
 from pytopo3d.utils.filter import apply_filter
 from pytopo3d.utils.oc_update import optimality_criteria_update
 
+# The issue-#7 NameError (`cp`/`cusp` undefined) can only occur when CuPy is absent;
+# with CuPy installed those names exist, so the crash is unreproducible. Skip -- not
+# fail -- those two regressions on a CuPy machine. The invariant tests further down run
+# everywhere: they validate CPU behaviour regardless of whether CuPy is present.
+cpu_only_regression = pytest.mark.skipif(
+    HAS_CUPY, reason="issue-#7 NameError is only reproducible without CuPy installed"
+)
 
-def test_env_is_cpu_only():
-    # The #7 regressions are only meaningful when CuPy is absent.
-    assert HAS_CUPY is False
 
-
+@cpu_only_regression
 def test_oc_update_cpu_runs():
     """Regression for issue #7: OC update must not touch the undefined name `cusp` on CPU."""
     n = 4
@@ -38,6 +43,7 @@ def test_oc_update_cpu_runs():
     assert np.isfinite(change)
 
 
+@cpu_only_regression
 def test_apply_filter_cpu_runs():
     """Regression for the second (previously unreachable) bug: apply_filter's CPU
     branch referenced the undefined name `cp`."""

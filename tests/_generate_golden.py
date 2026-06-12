@@ -27,6 +27,14 @@ from tests.cases import SMALL_CASE  # noqa: E402
 
 
 def main():
+    # Force the same CPU solver CI uses (scipy spsolve). Otherwise, regenerating the
+    # golden on a machine that happens to have pypardiso installed would bless a
+    # different solver's output, permanently mismatching CI (which has no pypardiso).
+    import pytopo3d.utils.solver as _solver
+
+    _solver.solvers["cpu"] = _solver.seq_solve
+    _solver.solvers["cpu_name"] = "SciPy spsolve (forced for golden)"
+
     out_dir = Path(__file__).parent / "data"
     out_dir.mkdir(exist_ok=True)
 

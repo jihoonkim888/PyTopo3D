@@ -13,8 +13,15 @@ tests/gpu/slurm_gpu_test.sbatch.
 import numpy as np
 import pytest
 
-# Skip the whole module on machines without CuPy / a GPU.
-pytest.importorskip("cupy", reason="CuPy not installed (needs a CUDA GPU)")
+# Skip the whole module unless a usable CUDA device is present. `importorskip` alone is
+# not enough: the cupy wheel can be installed on a CPU-only box (it imports fine) and
+# would then NOT skip, failing later inside top3d. Check the device count too.
+cp = pytest.importorskip("cupy", reason="CuPy not installed (needs a CUDA GPU)")
+try:
+    if cp.cuda.runtime.getDeviceCount() == 0:
+        pytest.skip("no CUDA device available", allow_module_level=True)
+except cp.cuda.runtime.CUDARuntimeError:
+    pytest.skip("CUDA runtime unavailable", allow_module_level=True)
 
 import matplotlib  # noqa: E402
 
