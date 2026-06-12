@@ -207,7 +207,7 @@ def apply_filter(
             return filtered_gpu
     else:
         # CPU version
-        if isinstance(x, cp.ndarray):
+        if HAS_CUPY and isinstance(x, cp.ndarray):
             x_flat = cp.asnumpy(x).ravel(order='F')
         else:
             x_flat = x.ravel(order='F')
