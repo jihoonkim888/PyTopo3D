@@ -82,8 +82,6 @@ conda activate pytopo3d
 3. For developers, install in development mode:
 ```bash
 # Basic installation
-cd build-tools
-
 pip install -e .
 
 # With GPU acceleration support
@@ -322,8 +320,6 @@ To use GPU acceleration, install PyTopo3D with GPU support:
 pip install pytopo3d[gpu]
 
 # For development installation
-cd build-tools
-
 pip install -e ".[gpu]"
 ```
 

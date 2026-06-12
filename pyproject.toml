@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -50,4 +50,11 @@ gpu = [
 "Homepage" = "https://github.com/jihoonkim888/PyTopo3D"
 "Bug Tracker" = "https://github.com/jihoonkim888/PyTopo3D/issues"
 "Documentation" = "https://github.com/jihoonkim888/PyTopo3D"
-"Source Code" = "https://github.com/jihoonkim888/PyTopo3D" 
+"Source Code" = "https://github.com/jihoonkim888/PyTopo3D"
+
+# Package discovery must be explicit: the repo has a flat layout with several
+# top-level dirs (tests/, examples/, scripts/, assets/). Without this, a build
+# either ships an empty package or errors on ambiguous discovery -- the root cause
+# of issue #6, which previously shipped a package containing no modules.
+[tool.setuptools.packages.find]
+include = ["pytopo3d*"]

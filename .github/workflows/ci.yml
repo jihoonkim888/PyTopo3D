@@ -30,11 +30,22 @@ jobs:
         # the golden-master reference.
         run: |
           python -m pip install --upgrade pip
-          pip install numpy scipy matplotlib pandas scikit-image \
+          # setuptools is needed by tests/test_packaging.py (find_packages) and is no
+          # longer bundled in Python 3.12+ venvs.
+          pip install setuptools numpy scipy matplotlib pandas scikit-image \
                       networkx pillow plotly tqdm trimesh psutil pytest
 
       - name: Run CPU test suite
         run: pytest -v
+
+      - name: Verify the package builds, installs and imports (guards #6)
+        # Runs AFTER the suite so the pypardiso pulled in here can't affect the
+        # golden-master solver. Imports from outside the repo so it tests the
+        # INSTALLED package, not the source tree -- an empty build (issue #6) fails here.
+        run: |
+          pip install .
+          cd "$RUNNER_TEMP"
+          python -c "import pytopo3d, pytopo3d.core.optimizer; print('installed package imports OK')"
 
   # The GPU parity tests (tests/gpu/) require a CUDA GPU and are run manually on a
   # GPU machine / Slurm cluster -- see tests/gpu/README.md. They are not part of CI.
