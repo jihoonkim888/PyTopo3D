@@ -14,7 +14,9 @@ without the MATLAB reference.
 
 ```bash
 python -m venv .venv-gpu && source .venv-gpu/bin/activate
-pip install numpy scipy matplotlib pytest cupy-cuda12x   # match the wheel to your CUDA version
+# The [ctk] extra installs the CUDA toolkit (libs + headers) as wheels, so CuPy
+# works without a system CUDA install. Match the wheel to your CUDA major version.
+pip install numpy scipy matplotlib pytest "cupy-cuda12x[ctk]"
 PYTHONPATH=. pytest tests/gpu -v
 ```
 

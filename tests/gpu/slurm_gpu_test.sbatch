@@ -20,14 +20,16 @@ REPO="${REPO:-${SLURM_SUBMIT_DIR:-$PWD}}"
 cd "$REPO"
 echo "repo: $REPO"
 
-# Dedicated venv for the GPU run. cupy-cuda12x targets CUDA 12.x -- swap the wheel
-# (e.g. cupy-cuda11x) to match your cluster's CUDA toolkit.
+# Dedicated venv for the GPU run. The [ctk] extra pulls the CUDA toolkit (libraries
+# AND headers) as pip wheels, so CuPy works without a system CUDA install -- it needs
+# the headers to JIT-compile its kernels at runtime. Swap the wheel (e.g.
+# cupy-cuda11x[ctk]) to match your cluster's CUDA major version.
 VENV="${VENV:-$HOME/.cache/pytopo3d-gpu-venv}"
 if [ ! -x "$VENV/bin/python" ]; then
     echo "creating venv at $VENV"
     python3 -m venv "$VENV"
     "$VENV/bin/pip" install --upgrade pip wheel
-    "$VENV/bin/pip" install numpy scipy matplotlib pytest cupy-cuda12x
+    "$VENV/bin/pip" install numpy scipy matplotlib pytest "cupy-cuda12x[ctk]"
 fi
 
 echo "--- GPU visible to the job ---"
