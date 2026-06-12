@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytopo3d"
-version = "0.1.0"
+version = "0.1.1"
 description = "3D SIMP Topology Optimization Framework for Python"
 readme = "README.md"
 authors = [
-    {name = "Jihoon Kim", email = "jihoonkim888@example.com"},  # Replace with actual email
-    {name = "Namwoo Kang", email = "example@example.com"},      # Replace with actual email
+    {name = "Jihoon Kim", email = "jihoon.kim@kaist.ac.kr"},
+    {name = "Namwoo Kang", email = "nwkang@kaist.ac.kr"},
 ]
 license = {text = "MIT"}
 classifiers = [
