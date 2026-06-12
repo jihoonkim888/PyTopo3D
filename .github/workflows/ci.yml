@@ -30,7 +30,9 @@ jobs:
         # the golden-master reference.
         run: |
           python -m pip install --upgrade pip
-          pip install numpy scipy matplotlib pandas scikit-image \
+          # setuptools is needed by tests/test_packaging.py (find_packages) and is no
+          # longer bundled in Python 3.12+ venvs.
+          pip install setuptools numpy scipy matplotlib pandas scikit-image \
                       networkx pillow plotly tqdm trimesh psutil pytest
 
       - name: Run CPU test suite
