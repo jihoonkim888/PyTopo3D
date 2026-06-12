@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytopo3d"
-version = "0.1.1"
+version = "0.1.2"
 description = "3D SIMP Topology Optimization Framework for Python"
 readme = "README.md"
 authors = [
@@ -43,7 +43,10 @@ dev = [
     "jupyterlab",
 ]
 gpu = [
-    "cupy-cuda12x",  # Replace with appropriate CUDA version as needed
+    # The [ctk] extra bundles the CUDA toolkit (libraries + headers) as wheels, so GPU
+    # acceleration works without a separate system CUDA install. For CUDA 11.x, use
+    # cupy-cuda11x[ctk] instead.
+    "cupy-cuda12x[ctk]",
 ]
 
 [project.urls]
