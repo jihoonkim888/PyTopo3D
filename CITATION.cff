@@ -7,6 +7,7 @@ authors:
   - family-names: Kang
     given-names: Namwoo
 license: MIT
+doi: "10.5281/zenodo.20697949"
 url: "https://github.com/jihoonkim888/PyTopo3D"
 repository-code: "https://github.com/jihoonkim888/PyTopo3D"
 preferred-citation:
