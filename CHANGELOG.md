@@ -13,10 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   loaded from an STL, its voxelized grid (`mesh size ÷ pitch`) defines `nelx`/`nely`/`nelz`;
   the CLI used to keep the `--nelx/--nely/--nelz` arguments instead, so unless they happened
   to equal the voxelized shape the run crashed with a shape mismatch (e.g. combining the STL
-  with default dims or a JSON obstacle). `main.py` now adopts the STL-derived resolution
-  (logged), and obstacles are built against the design-space grid. Pure-array and non-STL
-  CLI runs are unaffected. The dormant `pytopo3d.cli.command` entry point gets the same fix;
-  `pytopo3d.runners.pipeline` is separately stale (unrelated signature drift) and untouched.
+  with default dims or a JSON obstacle). `main.py` now adopts the STL-derived resolution and
+  **warns** that `--nelx/--nely/--nelz` are ignored when `--design-space-stl` is set, and
+  obstacles are built against the design-space grid. Pure-array and non-STL CLI runs are
+  unaffected.
+
+### Known limitations
+
+- The auto-generated experiment-directory name reflects the requested CLI dims, not the
+  STL-derived ones (the run itself and the saved `config.json` use the correct dims).
+- The dormant `pytopo3d.cli.command` and `pytopo3d.runners.pipeline` entry points have
+  pre-existing, unrelated breakage (stale call signatures) and are not wired to a console
+  script; they are tracked separately, not addressed here.
 
 ## [0.2.0] - 2026-06-13
 
