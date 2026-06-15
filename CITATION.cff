@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use PyTopo3D in your research, please cite the paper below."
+title: "PyTopo3D: A Python Framework for 3D SIMP-based Topology Optimization"
+authors:
+  - family-names: Kim
+    given-names: Jihoon
+  - family-names: Kang
+    given-names: Namwoo
+license: MIT
+url: "https://github.com/jihoonkim888/PyTopo3D"
+repository-code: "https://github.com/jihoonkim888/PyTopo3D"
+preferred-citation:
+  type: article
+  title: "PyTopo3D: A Python Framework for 3D SIMP-based Topology Optimization"
+  authors:
+    - family-names: Kim
+      given-names: Jihoon
+    - family-names: Kang
+      given-names: Namwoo
+  year: 2025
+  journal: "arXiv preprint arXiv:2504.05604"
+  url: "https://arxiv.org/abs/2504.05604"

@@ -439,10 +439,10 @@ This code is adapted from [Liu & Tovar's MATLAB code](https://www.top3d.app/) fo
 
 If you use PyTopo3D in your research or work, please cite our paper on ArXiv: [PyTopo3D: A Python Framework for 3D SIMP-based Topology Optimization](https://arxiv.org/abs/2504.05604)
 
-> Kim, J. & Kang, N. (2024). PyTopo3D: A Python Framework for 3D SIMP-based Topology Optimization. arXiv preprint arXiv:2504.05604.
+> Kim, J. & Kang, N. (2025). PyTopo3D: A Python Framework for 3D SIMP-based Topology Optimization. arXiv preprint arXiv:2504.05604.
 
 ```bibtex
-@article{kim2025pytopo3d
+@article{kim2025pytopo3d,
       title={PyTopo3D: A Python Framework for 3D SIMP-based Topology Optimization}, 
       author={Jihoon Kim and Namwoo Kang},
       journal={arXiv preprint arXiv:2504.05604},
