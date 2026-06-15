@@ -94,3 +94,7 @@ Publishing is automated. Creating a **GitHub Release** triggers `.github/workflo
 **Publishing is irreversible** — a PyPI version can never be re-uploaded or fully deleted — so treat it as a confirm-once, no-undo step.
 
 Version policy (pre-1.0): a **breaking** change is a MINOR bump (the 0.2.0 STL axis fix); bug-fix-only releases are PATCH bumps. Release numbers are assigned independently of the README roadmap milestones.
+
+## Citation
+
+PyTopo3D is research software. If you use it — or build a downstream project on it — please cite the paper: Kim & Kang, *PyTopo3D: A Python Framework for 3D SIMP-based Topology Optimization*, arXiv:2504.05604 (2025). See `CITATION.cff` (GitHub's "Cite this repository") or the README *Citation* section for BibTeX.
