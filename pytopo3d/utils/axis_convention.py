@@ -21,4 +21,6 @@ def warn_stl_axis_change_once() -> None:
     global _WARNED
     if not _WARNED:
         _WARNED = True
-        warnings.warn(_MESSAGE, UserWarning, stacklevel=2)
+        # stacklevel=3: warn -> warn_stl_axis_change_once -> public STL fn -> user code,
+        # so 3 points the warning at the caller of stl_to_design_space / voxel_to_stl.
+        warnings.warn(_MESSAGE, UserWarning, stacklevel=3)

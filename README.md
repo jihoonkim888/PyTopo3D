@@ -119,8 +119,8 @@ you, so an STL's x-axis maps to the domain's `x` (`nelx`).
 > **Changed in 0.2.0:** STL import/export now map an STL's x-axis to the domain's x-axis.
 > Before 0.2.0 they were transposed, so **any** STL import/export workflow now produces
 > different results (identical to 0.1.x only for `x`<->`y`-symmetric parts); non-STL usage
-> is unchanged. To reproduce pre-0.2.0 results, pin `pytopo3d==0.1.2`. 0.2.0 prints a
-> one-time notice on first STL use. See the [CHANGELOG](CHANGELOG.md).
+> is unchanged. To reproduce pre-0.2.0 results, pin `pytopo3d==0.1.2`. 0.2.0 emits a
+> one-time warning on first STL use. See the [CHANGELOG](CHANGELOG.md).
 
 #### Default load direction vs MATLAB `top3d`
 
@@ -131,9 +131,9 @@ related by a `y` <-> `z` swap (PyTopo3D bends in the `x-z` plane, `top3d` bends 
 PyTopo3D keeps `-z` on purpose, since z-up is the CAD/STL convention and stays internally
 consistent with the rest of the framework.
 
-To reproduce the canonical `top3d` cantilever load case (a tip load in `-y`, bending in the
-`x-y` plane), pass a `force_field`. The default supports already match `top3d`, so only the
-load differs:
+To set up a `top3d`-style cantilever (a downward `-y` load at the free-end tip, bending in
+the `x-y` plane), pass a `force_field`. The default supports already match `top3d`, so only
+the load differs:
 
 ```python
 import numpy as np
@@ -141,9 +141,15 @@ from pytopo3d.core.optimizer import top3d
 
 nelx, nely, nelz = 60, 20, 10
 force_field = np.zeros((nely, nelx, nelz, 3))
-force_field[0, nelx - 1, :, 1] = -1.0  # -y load on the far-x, y=0 tip edge (top3d-style)
+force_field[0, nelx - 1, :, 1] = -1.0  # -y load on the far-x tip elements (y=0 row, all z)
 result = top3d(nelx, nely, nelz, 0.3, 3.0, 1.5, 0.5, force_field=force_field)
 ```
+
+Note: `force_field` is **element**-based — `build_force_vector` spreads each element's force
+over its 8 corner nodes — so this loads the tip *elements* rather than the exact nodal edge
+that MATLAB `top3d` uses (the total magnitude also differs). It reproduces the load direction
+and bending plane, which is what matters for orientation comparison, not `top3d`'s exact
+nodal load.
 
 ### Command-line Interface
 
