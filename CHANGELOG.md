@@ -5,7 +5,23 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.2] - 2026-06-15
+
+A maintenance release with no functional code changes. Cut as a one-off — outside the
+normal "milestone or urgent fix" cadence — to bootstrap Zenodo archival (the project's
+first software DOI) and to ship the documentation and project-metadata work that has
+accumulated since 0.2.1.
+
+### Added
+
+- `CITATION.cff` (GitHub's "Cite this repository") and status badges in the README.
+- `AGENTS.md` / `CLAUDE.md` contributor & agent guide, and a `RELEASING.md` release guide.
+- `.zenodo.json` so that published GitHub Releases are archived to Zenodo with a citable DOI.
+
+### Fixed
+
+- README citation: a malformed BibTeX entry (missing comma after the cite key) and the
+  prose publication year (2024 → 2025).
 
 ### Removed
 
