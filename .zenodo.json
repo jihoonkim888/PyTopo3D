@@ -1,0 +1,14 @@
+{
+  "upload_type": "software",
+  "title": "PyTopo3D: A Python Framework for 3D SIMP-based Topology Optimization",
+  "description": "A Python framework for 3D structural topology optimization using the SIMP (Solid Isotropic Material with Penalization) method, with support for obstacle regions, STL design-space import/export, and optional CUDA (CuPy) GPU acceleration.",
+  "creators": [
+    {"name": "Kim, Jihoon"},
+    {"name": "Kang, Namwoo"}
+  ],
+  "license": "MIT",
+  "keywords": ["topology optimization", "SIMP", "structural optimization", "3D", "finite element"],
+  "related_identifiers": [
+    {"identifier": "arXiv:2504.05604", "relation": "isSupplementTo", "scheme": "arxiv"}
+  ]
+}
