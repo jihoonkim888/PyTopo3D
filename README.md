@@ -4,6 +4,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/pytopo3d)](https://pypi.org/project/pytopo3d/)
 [![CI](https://github.com/jihoonkim888/PyTopo3D/actions/workflows/ci.yml/badge.svg)](https://github.com/jihoonkim888/PyTopo3D/actions/workflows/ci.yml)
 [![arXiv](https://img.shields.io/badge/arXiv-2504.05604-b31b1b.svg)](https://arxiv.org/abs/2504.05604)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20697949.svg)](https://doi.org/10.5281/zenodo.20697949)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ![Design optimization with boundary conditions](assets/optimization_animation.gif)
