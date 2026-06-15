@@ -456,11 +456,12 @@ This paper provides a detailed explanation of the implementation, theoretical fo
 
 Below is the roadmap for future releases of PyTopo3D:
 
-### Version 0.2.0 (Performance & Interface)
+### Version 0.2.0 (Performance & Coordinate Fix) — released
 - ✅ **GPU Acceleration**: CUDA acceleration via CuPy for faster optimization on NVIDIA GPUs
-- **Interactive GUI**: Basic graphical user interface for parameter configuration and visualization (replacing current `matplotlib`-based visualization which slows down with high voxel counts)
+- ✅ **STL coordinate-convention fix**: consistent `x`/`y` axis handling on STL import/export (see [CHANGELOG](CHANGELOG.md))
 
-### Version 0.3.0 (Core Functionality Improvements)
+### Version 0.3.0 (Core Functionality & Interface)
+- **Interactive GUI**: Basic graphical user interface for parameter configuration and visualization (replacing the current `matplotlib`-based visualization which slows down with high voxel counts)
 - **Optimization for Mass Minimization**
 - **Improved Convergence Methods**
 
