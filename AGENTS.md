@@ -86,14 +86,7 @@ Everything committed here is public. Keep machine- and environment-specific deta
 
 ## Releases
 
-Publishing is automated. Creating a **GitHub Release** triggers `.github/workflows/publish.yml`, which builds the sdist + wheel and uploads to PyPI via **Trusted Publishing** (OIDC — no stored token). To cut a release:
-
-1. Bump `version` in `pyproject.toml` (PyPI rejects re-uploading an existing version).
-2. Create a GitHub Release with tag `vX.Y.Z`.
-
-**Publishing is irreversible** — a PyPI version can never be re-uploaded or fully deleted — so treat it as a confirm-once, no-undo step.
-
-Version policy (pre-1.0): a **breaking** change is a MINOR bump (the 0.2.0 STL axis fix); bug-fix-only releases are PATCH bumps. Release numbers are assigned independently of the README roadmap milestones.
+Release cadence, versioning (SemVer), the per-release checklist, and the publish steps live in **`RELEASING.md`** — follow it when cutting a release. The one rule worth repeating here: **publishing is irreversible** (a PyPI version can never be re-uploaded or fully deleted), so the version bump + GitHub Release is a confirm-once step.
 
 ## Citation
 
