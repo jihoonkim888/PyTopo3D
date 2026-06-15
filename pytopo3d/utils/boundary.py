@@ -9,41 +9,6 @@ from typing import Tuple
 import numpy as np
 
 
-def calculate_boundary_positions(
-    nelx: int, nely: int, nelz: int
-) -> Tuple[
-    Tuple[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]
-]:
-    """
-    Calculate the positions of loads and constraints for visualization.
-
-    Parameters
-    ----------
-    nelx, nely, nelz : int
-        Number of elements in x, y, z directions.
-
-    Returns
-    -------
-    Tuple[Tuple[np.ndarray, np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray, np.ndarray]]
-        (load_positions, constraint_positions), where each position is a tuple of (x, y, z) arrays.
-    """
-    # Calculate load positions
-    il, jl, kl = np.meshgrid([nelx], [0], np.arange(nelz + 1), indexing="ij")
-    load_x = il.ravel()
-    load_y = nely - jl.ravel()  # Converted to visualization coordinates
-    load_z = kl.ravel()
-
-    # Calculate constraint positions
-    iif, jf, kf = np.meshgrid(
-        [0], np.arange(nely + 1), np.arange(nelz + 1), indexing="ij"
-    )
-    constraint_x = iif.ravel()
-    constraint_y = nely - jf.ravel()  # Converted to visualization coordinates
-    constraint_z = kf.ravel()
-
-    return (load_x, load_y, load_z), (constraint_x, constraint_y, constraint_z)
-
-
 def create_boundary_arrays(
     nelx: int, nely: int, nelz: int
 ) -> Tuple[np.ndarray, np.ndarray]:

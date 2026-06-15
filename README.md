@@ -102,6 +102,49 @@ The main optimization parameters are:
 - `tolx`: Convergence tolerance on design change (default: 0.01)
 - `maxloop`: Maximum number of iterations (default: 2000)
 
+### Coordinate System and Axis Conventions
+
+PyTopo3D uses a right-handed Cartesian `(x, y, z)` convention with `z` as the vertical axis.
+`x`, `y`, `z` mean the same thing across the whole public surface:
+
+- `nelx`, `nely`, `nelz` count elements along x, y, z.
+- JSON obstacle `center`/`size` and `force_field` components `[Fx, Fy, Fz]` are in `(x, y, z)` order.
+- The default load is a downward `-z` force along the far-x bottom edge (`x = nelx`, `z = 0`, spanning all `y`); the default support fixes the entire `x = 0` face.
+
+Internally, density and mask arrays are stored as `(nely, nelx, nelz)` — the y-axis comes
+first — a layout inherited from the MATLAB `top3d` reference. So when you build a mask by
+hand, index it as `mask[y, x, z]`. STL import and export transpose the first two axes for
+you, so an STL's x-axis maps to the domain's `x` (`nelx`).
+
+> **Changed in 0.2.0:** STL import/export now map an STL's x-axis to the domain's x-axis.
+> Before 0.2.0 they were transposed, so **any** STL import/export workflow now produces
+> different results (identical to 0.1.x only for `x`<->`y`-symmetric parts); non-STL usage
+> is unchanged. To reproduce pre-0.2.0 results, pin `pytopo3d==0.1.2`. 0.2.0 prints a
+> one-time notice on first STL use. See the [CHANGELOG](CHANGELOG.md).
+
+#### Default load direction vs MATLAB `top3d`
+
+The default load is `-z` (z-up), consistent with the CAD/STL convention used everywhere else
+in PyTopo3D. The MATLAB `top3d` reference instead loads in `-y`: its vertical axis is `y`,
+inherited from the 2D `top88`/`top99` lineage. The two default cantilevers are therefore
+related by a `y` <-> `z` swap (PyTopo3D bends in the `x-z` plane, `top3d` bends in `x-y`).
+PyTopo3D keeps `-z` on purpose, since z-up is the CAD/STL convention and stays internally
+consistent with the rest of the framework.
+
+To reproduce the canonical `top3d` cantilever load case (a tip load in `-y`, bending in the
+`x-y` plane), pass a `force_field`. The default supports already match `top3d`, so only the
+load differs:
+
+```python
+import numpy as np
+from pytopo3d.core.optimizer import top3d
+
+nelx, nely, nelz = 60, 20, 10
+force_field = np.zeros((nely, nelx, nelz, 3))
+force_field[0, nelx - 1, :, 1] = -1.0  # -y load on the far-x, y=0 tip edge (top3d-style)
+result = top3d(nelx, nely, nelz, 0.3, 3.0, 1.5, 0.5, force_field=force_field)
+```
+
 ### Command-line Interface
 
 To run a basic optimization:

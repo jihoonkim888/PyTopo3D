@@ -10,6 +10,8 @@ from scipy.interpolate import RegularGridInterpolator
 from scipy.ndimage import distance_transform_edt
 from skimage import measure
 
+from pytopo3d.utils.axis_convention import warn_stl_axis_change_once
+
 
 def voxel_to_stl(
     input_file: Union[str, np.ndarray],
@@ -49,6 +51,8 @@ def voxel_to_stl(
     Union[str, trimesh.Trimesh]
         The path to the saved STL file if output_file is provided, otherwise the generated trimesh.Trimesh object.
     """
+    warn_stl_axis_change_once()
+
     # 1. Load the voxel data from the .npy file or use the provided array
     if isinstance(input_file, str):
         voxel_data: np.ndarray = np.load(input_file)
@@ -56,6 +60,12 @@ def voxel_to_stl(
         voxel_data = input_file
     else:
         raise TypeError("input_file must be a string path or a NumPy array.")
+
+    # PyTopo3D stores densities as (nely, nelx, nelz). Swap the first two axes so the
+    # exported mesh's x corresponds to the domain's x (nelx), mirroring the import
+    # convention in import_design_space.stl_to_design_space. Without this an STL that is
+    # imported and then exported comes back with its x and y transposed.
+    voxel_data = voxel_data.swapaxes(0, 1)
 
     # 2. Pad the voxel data with zeros to ensure a closed mesh
     if padding > 0:
@@ -197,6 +207,8 @@ def voxel_to_stl_tpms(
     Returns:
         Union[str, trimesh.Trimesh]: The path to the saved STL file if output_stl_path is provided, otherwise the generated trimesh.Trimesh object.
     """
+    warn_stl_axis_change_once()
+
     logging.info("Starting mat2stl conversion with shell from density mask...")
     t_start = time.time()
 
@@ -209,6 +221,9 @@ def voxel_to_stl_tpms(
         V = input_npy_path
     else:
         raise TypeError("input_npy_path must be a string path or a NumPy array.")
+    # Match voxel_to_stl / stl_to_design_space: densities are (nely, nelx, nelz);
+    # swap the first two axes so the TPMS mesh's x maps to the domain's x (nelx).
+    V = V.swapaxes(0, 1)
     logging.debug(f"   Data shape: {V.shape}   (took {time.time() - t1:.2f}s)")
 
     # ── 2. Define regular & evaluation grids ─────────────────────────────────
