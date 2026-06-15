@@ -66,6 +66,19 @@ def main():
             results_mgr=results_mgr,
         )
 
+        # An STL design space defines the working grid via its voxelized resolution
+        # (mesh size / pitch). Adopt it so the DOFs, boundary conditions, visualization,
+        # and solver all match the STL-shaped masks; otherwise they keep the CLI
+        # nelx/nely/nelz and crash on a shape mismatch. The CLI dims are ignored in this
+        # case, so warn rather than silently change the grid the user may have requested.
+        if getattr(args, "design_space_stl", None):
+            args.nely, args.nelx, args.nelz = design_space_mask.shape
+            logger.warning(
+                f"--design-space-stl set: using STL-derived resolution "
+                f"nelx={args.nelx}, nely={args.nely}, nelz={args.nelz}; "
+                f"any --nelx/--nely/--nelz values are ignored."
+            )
+
         # Determine number of DOFs
         ndof = 3 * (args.nelx + 1) * (args.nely + 1) * (args.nelz + 1)
 
