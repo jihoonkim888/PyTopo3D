@@ -33,8 +33,8 @@ A comprehensive Python implementation of 3D Topology Optimization based on SIMP 
   - [Acknowledgements](#acknowledgements)
   - [Citation](#citation)
   - [Roadmap](#roadmap)
-    - [Version 0.2.0 (Performance \& Interface)](#version-020-performance--interface)
-    - [Version 0.3.0 (Core Functionality Improvements)](#version-030-core-functionality-improvements)
+    - [Version 0.2.0 (Performance \& Coordinate Fix) — released](#version-020-performance--coordinate-fix--released)
+    - [Version 0.3.0 (Core Functionality \& Interface)](#version-030-core-functionality--interface)
     - [Version 0.4.0 (Pre-release Stabilization)](#version-040-pre-release-stabilization)
     - [Version 1.0.0 (Stable Release)](#version-100-stable-release)
 
