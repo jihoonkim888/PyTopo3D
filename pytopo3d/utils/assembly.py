@@ -45,13 +45,13 @@ def build_force_vector(
     F = np.zeros(ndof)
 
     if force_field is None:
-        # Default implementation - forces on nodes at x=nelx, y=0 in -z direction
-        # Nodes on the line x = nelx, y = 0
+        # Default load: a unit downward (-z) force on every node of the far x face at
+        # z=0, i.e. the line x=nelx, z=0 spanning all y (il=nelx, jl=all y, kl=0).
         il, jl, kl = np.meshgrid(
             [nelx],
             np.arange(nely + 1),
             [0],
-            indexing="ij",  # Only y=0
+            indexing="ij",
         )
         # Calculate 0-based global node indices using Fortran order
         # nid = iy + ix * (nely + 1) + iz * (nelx + 1) * (nely + 1)

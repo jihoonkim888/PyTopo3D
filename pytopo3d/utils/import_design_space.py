@@ -10,6 +10,8 @@ import os
 import numpy as np
 import trimesh
 
+from pytopo3d.utils.axis_convention import warn_stl_axis_change_once
+
 
 def import_stl(stl_file: str) -> trimesh.Trimesh:
     """
@@ -98,11 +100,20 @@ def stl_to_design_space(
     np.ndarray
         Boolean array where True values represent the design space.
     """
+    warn_stl_axis_change_once()
+
     # Import the STL file
     mesh = import_stl(stl_file)
 
     # Voxelize the mesh with specified pitch
     voxels = voxelize_mesh(mesh, pitch)
+
+    # trimesh returns the voxel grid in CAD axis order (x, y, z), but the solver
+    # and every mask in PyTopo3D use (nely, nelx, nelz) == (y, x, z). Swap the
+    # first two axes so an STL's x maps to the domain's x (not its y). Without
+    # this the design space, default supports/loads, and obstacles all land on
+    # the wrong faces for any non-cube part.
+    voxels = voxels.swapaxes(0, 1)
 
     # Invert if requested
     if invert:
