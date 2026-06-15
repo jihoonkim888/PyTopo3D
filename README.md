@@ -1,5 +1,11 @@
 # PyTopo3D: 3D SIMP Topology Optimization Framework for Python
 
+[![PyPI](https://img.shields.io/pypi/v/pytopo3d)](https://pypi.org/project/pytopo3d/)
+[![Python](https://img.shields.io/pypi/pyversions/pytopo3d)](https://pypi.org/project/pytopo3d/)
+[![CI](https://github.com/jihoonkim888/PyTopo3D/actions/workflows/ci.yml/badge.svg)](https://github.com/jihoonkim888/PyTopo3D/actions/workflows/ci.yml)
+[![arXiv](https://img.shields.io/badge/arXiv-2504.05604-b31b1b.svg)](https://arxiv.org/abs/2504.05604)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 ![Design optimization with boundary conditions](assets/optimization_animation.gif)
 
 A comprehensive Python implementation of 3D Topology Optimization based on SIMP (Solid Isotropic Material with Penalization) method. Unlike traditional MATLAB implementations, PyTopo3D brings the power of 3D SIMP-based optimization to the Python ecosystem with support for obstacle regions.
