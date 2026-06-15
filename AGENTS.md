@@ -52,6 +52,12 @@ python -c "from pytopo3d.core.optimizer import top3d"
 Key parameters: `nelx/nely/nelz` (element counts), `volfrac` (volume fraction),
 `penal` (SIMP penalization), `rmin` (filter radius). See the README for the full set.
 
+> **STL design spaces override the grid.** If you load the design space from an STL
+> (`--design-space-stl`), the resolution comes from the STL's voxelization (mesh size /
+> pitch) and your `--nelx/--nely/--nelz` are **ignored** (a warning is logged). The
+> adopted shape follows the internal `(nely, nelx, nelz)` order — see **Axis / array
+> layout** below.
+
 ## Tests
 
 ```bash
