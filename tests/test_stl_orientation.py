@@ -13,7 +13,7 @@ import pytest
 trimesh = pytest.importorskip("trimesh")
 pytest.importorskip("skimage")
 
-from pytopo3d.utils.export import voxel_to_stl
+from pytopo3d.utils.export import voxel_to_stl, voxel_to_stl_tpms
 from pytopo3d.utils.import_design_space import stl_to_design_space
 
 # An intentionally asymmetric box so every axis has a distinct length:
@@ -44,8 +44,35 @@ def test_stl_export_maps_nelx_to_x():
     assert ex > ez > ey
 
 
+def test_export_places_content_on_correct_axis():
+    """Content-level check: a cube-shaped array carries no shape information, so only a
+    correct axis mapping puts a bar that runs along nelx onto the mesh's x-axis. Guards
+    against a 'right shape, wrong content' regression (e.g. reshape instead of swapaxes)
+    that the solid-box tests above cannot catch."""
+    block = np.zeros((6, 6, 6), dtype=float)
+    block[0:2, :, 0:2] = 1.0  # solid bar along the nelx axis, at the y=0,z=0 corner
+    mesh = voxel_to_stl(block, output_file=None, smooth_mesh=False, fix_mesh=False)
+    ex, ey, ez = mesh.extents
+    assert ex > 2 * ey and ex > 2 * ez
+
+
+def test_tpms_export_places_content_on_correct_axis():
+    """voxel_to_stl_tpms applies the same axis swap; a bar along nelx must export x-long.
+    Cube-shaped array so only the axis mapping (not the shape) can satisfy this."""
+    block = np.zeros((6, 6, 6), dtype=float)
+    block[0:2, :, 0:2] = 1.0
+    mesh = voxel_to_stl_tpms(block, output_stl_path=None, res_factor=2, plot_mapping=False)
+    ex, ey, ez = mesh.extents
+    assert ex > ey and ex > ez
+
+
 def test_stl_round_trip_preserves_orientation(tmp_path):
-    """Import then export must return a mesh with the same axis-aspect order (no net flip)."""
+    """Import then export must return a mesh with the same axis-aspect order (no net flip).
+
+    Note: this only checks import/export *consistency*. It cannot catch a regression that
+    drops the swap in BOTH directions (those cancel out, leaving the round trip unchanged) --
+    the standalone import/export tests above cover that case.
+    """
     stl = tmp_path / "block.stl"
     trimesh.creation.box(extents=BOX_EXTENTS).export(stl)
 
