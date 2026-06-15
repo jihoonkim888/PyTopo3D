@@ -77,6 +77,15 @@ def main(args: Optional[List[str]] = None) -> int:
             results_mgr=results_mgr,
         )
 
+        # An STL design space defines the grid via its voxelized resolution; adopt it so the
+        # downstream dims match the STL-shaped masks (mirrors main.py). No-op without an STL.
+        parsed_args.nely, parsed_args.nelx, parsed_args.nelz = design_space_mask.shape
+        if getattr(parsed_args, "design_space_stl", None):
+            logger.info(
+                f"Using STL-derived resolution: nelx={parsed_args.nelx}, "
+                f"nely={parsed_args.nely}, nelz={parsed_args.nelz}"
+            )
+
         # Create and save initial visualization
         loads_array, constraints_array, _ = visualize_initial_setup(
             nelx=parsed_args.nelx,

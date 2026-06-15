@@ -66,6 +66,19 @@ def main():
             results_mgr=results_mgr,
         )
 
+        # When the design space is loaded from an STL, its voxelized resolution defines the
+        # grid (the user gives an STL + pitch, not nelx/nely/nelz). Adopt that resolution so
+        # the DOFs, boundary conditions, visualization, and solver all match the STL-shaped
+        # masks; otherwise they keep the CLI nelx/nely/nelz and crash on a shape mismatch.
+        # (No STL -> design_space_mask is (nely, nelx, nelz) already, so this is a no-op.)
+        args.nely, args.nelx, args.nelz = design_space_mask.shape
+        if getattr(args, "design_space_stl", None):
+            logger.info(
+                f"Using STL-derived resolution: nelx={args.nelx}, nely={args.nely}, "
+                f"nelz={args.nelz} (CLI --nelx/--nely/--nelz are ignored when "
+                f"--design-space-stl is set)"
+            )
+
         # Determine number of DOFs
         ndof = 3 * (args.nelx + 1) * (args.nely + 1) * (args.nelz + 1)
 

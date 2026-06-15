@@ -114,7 +114,11 @@ def load_geometry_data(
     # Handle obstacle config file case
     if obstacle_config:
         try:
-            shape = (nely, nelx, nelz)
+            # Build obstacles against the design-space grid. When the design space comes
+            # from an STL, that grid is the voxelized shape (which may differ from the
+            # nelx/nely/nelz arguments); using design_space_mask.shape keeps the obstacle
+            # mask the same size as the design space so the combine below cannot mismatch.
+            shape = design_space_mask.shape
             obstacle_mask = parse_obstacle_config_file(obstacle_config, shape)
             n_obstacle_elements = np.count_nonzero(obstacle_mask)
             if logger:
