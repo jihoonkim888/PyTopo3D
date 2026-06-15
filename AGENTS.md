@@ -14,9 +14,9 @@ Flat layout — the package and its packaging files both live at the repo root:
 
 - `pytopo3d/` — the importable package
   - `core/` — the optimizer entry point `top3d` (`optimizer.py`) and compliance
-  - `cli/` — argument parsing (`parser.py`); `command.py` is a stale alternate driver (see **Entry points** below)
+  - `cli/` — argument parsing (`parser.py`)
   - `preprocessing/` — geometry / design-space loading
-  - `runners/` — experiment setup / orchestration (`experiment.py`, the path `main.py` actually uses); `pipeline.py` is a stale alternate driver (see below)
+  - `runners/` — experiment setup / orchestration (`experiment.py`, the path `main.py` actually uses)
   - `utils/` — assembly, solver, filter, stiffness, OC update, obstacles, export, boundary, metrics, `axis_convention`, results manager, logger
   - `visualization/` — 3D display and animation generation
 - `main.py` — the **only working, maintained entry point** (`python main.py ...`)
@@ -24,7 +24,7 @@ Flat layout — the package and its packaging files both live at the repo root:
 - `examples/`, `scripts/`, `assets/` — sample configs, run scripts, images
 - `pyproject.toml` — **all** package metadata (PEP 621); `setup.py` is a shim only; `MANIFEST.in`, `environment.yml` for conda
 
-> **Entry points.** `main.py` is the only working, maintained driver. Two alternate drivers — `runners/pipeline.py` (`run_optimization_pipeline`) and `cli/command.py` — are currently **stale**: they call `setup_experiment` / `visualize_initial_setup` with an outdated argument shape, and nothing in the repo imports them, so they raise if invoked. Mirror `main.py`, not those.
+> **Entry points.** `main.py` is the only working, maintained driver (`python main.py ...`). Mirror it for any new entry point, batch runner, or scripting helper — build against its current call shape. (Two earlier alternate drivers, `runners/pipeline.py` and `cli/command.py`, were removed as dead code: they had drifted to stale call signatures and nothing imported them.)
 
 ## Running
 

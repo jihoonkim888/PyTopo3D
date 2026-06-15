@@ -5,6 +5,22 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+
+- **Removed the two dormant, broken alternate entry points** `pytopo3d/runners/pipeline.py`
+  (`run_optimization_pipeline` / `run_batch_optimization`) and `pytopo3d/cli/command.py`. Both
+  carried call signatures that no longer matched their helpers, by different routes: `pipeline.py`
+  still passed a single `args` object positionally to functions that now take explicit keyword
+  scalars, and `command.py` omitted the now-required `loads_array` / `constraints_array` arguments
+  to `visualize_initial_setup` — so each raised a `TypeError` when invoked. Nothing imported them,
+  they were not wired to a console script (`pyproject.toml` has no `[project.scripts]`), and
+  `main.py` is the only maintained entry point, so no working code path is affected and the
+  numerical core (golden-master result) is unchanged. This resolves the 0.2.1 "Known limitations"
+  note about these files (issue #20). A programmatic batch / parameter-sweep API, if wanted later,
+  should be written fresh against `main.py`'s current flow rather than revived from these.
+
 ## [0.2.1]
 
 ### Fixed
