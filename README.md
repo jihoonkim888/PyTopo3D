@@ -41,8 +41,9 @@ A comprehensive Python implementation of 3D Topology Optimization based on SIMP 
   - [Citation](#citation)
   - [Roadmap](#roadmap)
     - [Version 0.2.0 (Performance \& Coordinate Fix) — released](#version-020-performance--coordinate-fix--released)
-    - [Version 0.3.0 (Core Functionality \& Interface)](#version-030-core-functionality--interface)
-    - [Version 0.4.0 (Pre-release Stabilization)](#version-040-pre-release-stabilization)
+    - [Version 0.3.0 (Force-direction Fix)](#version-030-force-direction-fix)
+    - [Version 0.4.0 (Core Functionality \& Interface)](#version-040-core-functionality--interface)
+    - [Version 0.5.0 (Pre-release Stabilization)](#version-050-pre-release-stabilization)
     - [Version 1.0.0 (Stable Release)](#version-100-stable-release)
 
 ## Overview
@@ -448,12 +449,15 @@ Below is the roadmap for future releases of PyTopo3D:
 - ✅ **GPU Acceleration**: CUDA acceleration via CuPy for faster optimization on NVIDIA GPUs
 - ✅ **STL coordinate-convention fix**: consistent `x`/`y` axis handling on STL import/export (see [CHANGELOG](CHANGELOG.md))
 
-### Version 0.3.0 (Core Functionality & Interface)
-- **Interactive GUI**: Basic graphical user interface for parameter configuration and visualization (replacing the current `matplotlib`-based visualization which slows down with high voxel counts)
-- **Optimization for Mass Minimization**
-- **Improved Convergence Methods**
+### Version 0.3.0 (Force-direction Fix)
+- **`force_field` x/y transpose fix**: `Fx` and `Fy` now act along the correct axes (a regression where `Fx` acted along the `y` axis); see [CHANGELOG](CHANGELOG.md). Breaking only for `force_field` loads carrying distinct `Fx`/`Fy`; default `-z` loads and the golden master are unchanged.
 
-### Version 0.4.0 (Pre-release Stabilization)
+### Version 0.4.0 (Core Functionality & Interface)
+- **Interactive GUI**: Basic graphical user interface for parameter configuration and visualization (replacing the current `matplotlib`-based visualization which slows down with high voxel counts)
+- **Optimization for Mass Minimization** — minimize mass/volume under a performance (compliance) constraint
+- **Improved Convergence Methods** *(conditional)* — penalty continuation / projection, brought in alongside mass minimization only where an observed need (residual gray regions, poor local minima) justifies them, rather than as a standalone change
+
+### Version 0.5.0 (Pre-release Stabilization)
 - **API Stabilization**: Finalize API design for 1.0 release
 - **Comprehensive Testing**: Extensive test suite for all components (probably with `pytest`). *An initial `pytest` suite (CPU core + packaging guards) and GitHub Actions CI landed early, in 0.1.1.*
 - **Performance Benchmarking**: Establish baseline performance metrics

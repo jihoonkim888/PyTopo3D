@@ -5,6 +5,29 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-16
+
+### Fixed
+
+- **Force-direction x/y transpose.** `force_field` components `[Fx, Fy, Fz]` now act along
+  the correct axes. The `build_edof` rewrite in the commit that added custom `force_field`
+  support (the same change that moved the default load from `-y` to `-z`) silently swapped
+  the H8 element's first two local axes, so a user-supplied `Fx` acted along the **y**
+  (`nely`) axis and `Fy` along **x**. This was invisible to the default `-z` load, every
+  shipped cantilever example, and the golden master (all `-z` / `x`<->`y`-symmetric), so only
+  `force_field` loads with distinct `Fx` vs `Fy` were affected.
+
+  **Impact:** non-symmetric `force_field` loads carrying both x and y components change. The
+  default load, `-z`-only loads, supports, obstacle/geometry positions, and the golden-master
+  result are byte-identical (verified: max abs difference ~4e-13). The README's `force_field`
+  cantilever recipe now behaves as documented (a `-y` tip load bending in the x-y plane). To
+  reproduce the old (transposed) behavior, pin the previous release.
+
+### Added
+
+- `tests/test_force_direction.py` — locks the public `(x, y, z)` force-direction convention
+  (on an x-long beam, `Fx` is axial while `Fy`/`Fz` bend), so the transpose cannot regress.
+
 ## [0.2.2] - 2026-06-15
 
 A maintenance release with no functional code changes. Cut as a one-off — outside the

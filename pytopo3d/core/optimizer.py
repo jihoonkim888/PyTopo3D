@@ -20,6 +20,7 @@ import scipy.sparse as sp
 import matplotlib.pyplot as plt
 
 from pytopo3d.core.compliance import element_compliance
+from pytopo3d.core.evaluator import ComplianceEvaluator
 from pytopo3d.utils.assembly import build_edof, build_force_vector, build_supports
 from pytopo3d.utils.filter import HAS_CUPY, apply_filter, build_filter
 from pytopo3d.utils.logger import get_logger
@@ -145,6 +146,25 @@ def top3d(
         )
     else:
         K = sp.csr_matrix((np.zeros(len(i_unique)), (i_unique, j_unique)), shape=(ndof, ndof))
+        # Physics evaluator (the swappable seam): assembles K(xPhys), solves, and returns
+        # (c, dc, dv). The CPU loop below calls it; the GPU branch keeps its own inline
+        # physics for now. Returns the clean dv (no OC +1e-9 guard) — added at the OC call.
+        cpu_evaluator = ComplianceEvaluator(
+            KE=KE,
+            dup2uniq=dup2uniq,
+            K=K,
+            freedofs0=freedofs0,
+            F=F,
+            ndof=ndof,
+            solver_func=solver_func,
+            edofMat=edofMat,
+            shape=(nely, nelx, nelz),
+            H=H,
+            Hs=Hs,
+            obstacle_mask=obstacle_mask,
+            E0=E0,
+            Emin=Emin,
+        )
 
     # ─────────────────────── main loop
     loop, change, c_prev = 0, 1.0, np.inf
@@ -214,26 +234,8 @@ def top3d(
 
         # ================================================= CPU
         else:
-            stiff = Emin + (xPhys.ravel(order="F") ** penal) * (E0 - Emin)
-            elem_vals = np.kron(stiff, KE.ravel())
-            K.data[:] = 0.0
-            np.add.at(K.data, dup2uniq, elem_vals)
-
-            Kff = K[freedofs0, :][:, freedofs0]
-            Uf = solver_func(Kff, F[freedofs0])
-            U = np.zeros(ndof)
-            U[freedofs0] = Uf
-
-            ce_flat = element_compliance(U, edofMat, KE)
-            ce = ce_flat.reshape(nely, nelx, nelz, order="F")
-            c = ((Emin + xPhys ** penal * (E0 - Emin)) * ce).sum()
-
-            dc = -penal * (E0 - Emin) * xPhys ** (penal - 1) * ce
-            dv = np.ones_like(xPhys)
-            dc = (H * (dc.ravel(order="F") / Hs)).reshape((nely, nelx, nelz), order="F")
-            dv = (H * (dv.ravel(order="F") / Hs)).reshape((nely, nelx, nelz), order="F")
-            dc[obstacle_mask] = dv[obstacle_mask] = 0.0
-            dv += 1e-9
+            c, dc, dv = cpu_evaluator.evaluate(xPhys, penal)
+            dv += 1e-9  # OC divides by dv (oc_update); MMA/NLopt would use the clean dv
 
             xnew, change = optimality_criteria_update(
                 x,
