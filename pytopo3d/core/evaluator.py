@@ -10,9 +10,12 @@ the framework-owns-loop OC update today, and the solver-owns-loop NLopt MMA back
 CPU path only. The optimizer keeps its own CuPy GPU branch for now; a GPU evaluator
 follows when the two loops are unified.
 
-The returned ``dv`` is the **clean** volume sensitivity -- it deliberately does NOT carry
-OC's ``+1e-9`` division guard. The OC call site adds that itself, so a future MMA/NLopt
-backend receives the true gradient rather than an OC-specific perturbation.
+The returned ``dv`` omits OC's ``+1e-9`` division guard (the OC call site adds that itself).
+NOTE: with obstacles it is *not* yet the exact volume-constraint gradient -- obstacle cells
+are zeroed *after* the filter rather than excluded before it, so their sensitivity leaks into
+neighbours. This is carried over verbatim from the original loop and is fine for the OC
+bisection, but a future MMA/NLopt backend should exclude obstacle cells before the filter
+chain rule for obstacle problems.
 """
 
 from __future__ import annotations
