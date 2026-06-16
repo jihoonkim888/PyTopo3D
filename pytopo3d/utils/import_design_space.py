@@ -10,8 +10,6 @@ import os
 import numpy as np
 import trimesh
 
-from pytopo3d.utils.axis_convention import warn_stl_axis_change_once
-
 
 def import_stl(stl_file: str) -> trimesh.Trimesh:
     """
@@ -100,8 +98,6 @@ def stl_to_design_space(
     np.ndarray
         Boolean array where True values represent the design space.
     """
-    warn_stl_axis_change_once()
-
     # Import the STL file
     mesh = import_stl(stl_file)
 

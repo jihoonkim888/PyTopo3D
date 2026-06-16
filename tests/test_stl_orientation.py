@@ -82,26 +82,3 @@ def test_stl_round_trip_preserves_orientation(tmp_path):
     ex, ey, ez = mesh.extents
     # Same ordering as the original box extents (x > z > y).
     assert ex > ez > ey
-
-
-def test_axis_change_notice_fires_once(tmp_path):
-    """The 0.2.0 transition notice must fire on first STL use, then stay silent."""
-    import warnings
-
-    import pytopo3d.utils.axis_convention as ac
-
-    stl = tmp_path / "notice.stl"
-    trimesh.creation.box(extents=BOX_EXTENTS).export(stl)
-
-    original = ac._WARNED
-    ac._WARNED = False  # reset session-once flag for a deterministic check
-    try:
-        with pytest.warns(UserWarning, match="axis convention"):
-            stl_to_design_space(str(stl), pitch=1.0)
-
-        # A second STL operation must NOT warn again (once per session).
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
-            stl_to_design_space(str(stl), pitch=1.0)
-    finally:
-        ac._WARNED = original  # leave no global state behind for other tests

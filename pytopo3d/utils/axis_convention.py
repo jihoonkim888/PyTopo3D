@@ -1,31 +1,11 @@
-"""One-time runtime notices for axis-convention changes.
+"""One-time runtime notice for the 0.3.0 force_field axis-convention fix.
 
-Transitional notices, emitted once per session so users upgrading notice that results
-differ: (1) the 0.2.0 STL x/y axis change (remove in 0.3.0), and (2) the 0.3.0 `force_field`
-Fx/Fy transpose fix (remove in 0.4.0).
+Transitional notice, emitted once per session (for Fx/Fy loads only) so users upgrading
+notice that results differ. Remove when cutting 0.4.0. (The earlier 0.2.0 STL x/y notice
+was retired here after its transition period.)
 """
 
 import warnings
-
-_WARNED = False
-
-_MESSAGE = (
-    "PyTopo3D 0.2.0 changed the STL axis convention: an STL's x-axis now maps to the "
-    "domain's x-axis (nelx), so STL import/export results differ from 0.1.x. Non-STL "
-    "(pure-array) usage is unchanged. Pin pytopo3d==0.1.2 to reproduce pre-0.2.0 "
-    "results. See CHANGELOG.md. (Shown once; removed in 0.3.0.)"
-)
-
-
-def warn_stl_axis_change_once() -> None:
-    """Emit the STL axis-convention change notice at most once per session."""
-    global _WARNED
-    if not _WARNED:
-        _WARNED = True
-        # stacklevel=3: warn -> warn_stl_axis_change_once -> public STL fn -> user code,
-        # so 3 points the warning at the caller of stl_to_design_space / voxel_to_stl.
-        warnings.warn(_MESSAGE, UserWarning, stacklevel=3)
-
 
 _FORCE_WARNED = False
 

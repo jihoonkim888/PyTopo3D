@@ -10,8 +10,6 @@ from scipy.interpolate import RegularGridInterpolator
 from scipy.ndimage import distance_transform_edt
 from skimage import measure
 
-from pytopo3d.utils.axis_convention import warn_stl_axis_change_once
-
 
 def voxel_to_stl(
     input_file: Union[str, np.ndarray],
@@ -51,8 +49,6 @@ def voxel_to_stl(
     Union[str, trimesh.Trimesh]
         The path to the saved STL file if output_file is provided, otherwise the generated trimesh.Trimesh object.
     """
-    warn_stl_axis_change_once()
-
     # 1. Load the voxel data from the .npy file or use the provided array
     if isinstance(input_file, str):
         voxel_data: np.ndarray = np.load(input_file)
@@ -207,8 +203,6 @@ def voxel_to_stl_tpms(
     Returns:
         Union[str, trimesh.Trimesh]: The path to the saved STL file if output_stl_path is provided, otherwise the generated trimesh.Trimesh object.
     """
-    warn_stl_axis_change_once()
-
     logging.info("Starting mat2stl conversion with shell from density mask...")
     t_start = time.time()
 

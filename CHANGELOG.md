@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+
+- The transitional one-time notice for the 0.2.0 STL x/y axis-convention change. It outlived
+  its intended one-release window (it shipped all the way through 0.3.0), so it is retired.
+  STL import/export behavior is unchanged — only the upgrade notice is gone. (The 0.3.0
+  `force_field` transpose notice remains through one more release, to be removed in 0.4.0.)
+
 ## [0.3.0] - 2026-06-16
 
 ### Fixed
