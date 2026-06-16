@@ -1,7 +1,8 @@
-"""One-time runtime notice for the 0.2.0 STL axis-convention change.
+"""One-time runtime notices for axis-convention changes.
 
-Transitional: emitted once per session the first time an STL is imported or exported,
-so users upgrading from 0.1.x notice that STL results now differ. Remove in 0.3.0.
+Transitional notices, emitted once per session so users upgrading notice that results
+differ: (1) the 0.2.0 STL x/y axis change (remove in 0.3.0), and (2) the 0.3.0 `force_field`
+Fx/Fy transpose fix (remove in 0.4.0).
 """
 
 import warnings
@@ -24,3 +25,22 @@ def warn_stl_axis_change_once() -> None:
         # stacklevel=3: warn -> warn_stl_axis_change_once -> public STL fn -> user code,
         # so 3 points the warning at the caller of stl_to_design_space / voxel_to_stl.
         warnings.warn(_MESSAGE, UserWarning, stacklevel=3)
+
+
+_FORCE_WARNED = False
+
+_FORCE_MESSAGE = (
+    "PyTopo3D 0.3.0 fixed an x/y transpose in force_field: components Fx (index 0) and "
+    "Fy (index 1) now act along the correct axes (they were swapped before). force_field "
+    "loads with distinct Fx and Fy change; -z-only and x<->y-symmetric loads are unchanged. "
+    "Pin the previous release to reproduce the old behavior. See CHANGELOG.md. "
+    "(Shown once; removed in 0.4.0.)"
+)
+
+
+def warn_force_xy_change_once() -> None:
+    """Emit the force_field x/y fix notice at most once per session (only for Fx/Fy loads)."""
+    global _FORCE_WARNED
+    if not _FORCE_WARNED:
+        _FORCE_WARNED = True
+        warnings.warn(_FORCE_MESSAGE, UserWarning, stacklevel=3)

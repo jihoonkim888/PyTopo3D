@@ -9,6 +9,8 @@ from typing import Optional, Set, Tuple
 
 import numpy as np
 
+from pytopo3d.utils.axis_convention import warn_force_xy_change_once
+
 
 def build_force_vector(
     nelx: int,
@@ -73,6 +75,11 @@ def build_force_vector(
                 f"force_field has shape {force_field.shape}, "
                 f"but expected {expected_shape}"
             )
+
+        # The x/y force-direction transpose was fixed in 0.3.0; warn once if this load
+        # carries Fx or Fy components (whose behaviour changed). Fz-only loads are unaffected.
+        if np.any(force_field[..., 0]) or np.any(force_field[..., 1]):
+            warn_force_xy_change_once()
 
         # Iterate through each element and distribute its force to its 8 nodes
         for elz in range(nelz):
@@ -283,46 +290,49 @@ def build_edof(
         3 * edofVec_node_ids - 2
     )  # 3*nid - 2 -> x-dof ; 3*nid - 1 -> y-dof ; 3*nid -> z-dof
 
-    # Define the offsets to get the 24 DOFs of an H8 element relative to the first DOF
-    # Node order (local): 0,1,2,3 (bottom face z=0), 4,5,6,7 (top face z=1)
-    # Local node coords (y, x, z):
+    # Define the offsets to get the 24 DOFs of an H8 element relative to the first DOF.
+    # Node order (local): 0,1,2,3 (bottom face z=0), 4,5,6,7 (top face z=1) -- matches the
+    # lk_H8 element's local node ordering, so the element's first local axis aligns with the
+    # grid's x (nelx) axis. Local node coords (x, y, z):
     # 0:(0,0,0), 1:(1,0,0), 2:(1,1,0), 3:(0,1,0)
     # 4:(0,0,1), 5:(1,0,1), 6:(1,1,1), 7:(0,1,1)
-    # DOFs follow node order: [node0_x, node0_y, node0_z, node1_x, ..., node7_z]
-    # Offsets calculated relative to edofVec (node0_x DOF)
+    # DOFs follow node order: [node0_x, node0_y, node0_z, node1_x, ..., node7_z].
+    # The +x neighbour is one node over in x (offset 3*(nely+1)); the +y neighbour is the
+    # next node id (offset 3*1). NOTE: before the 0.3.0 fix nodes 1<->3 (and 5<->7) used the
+    # opposite offsets, which transposed the element's x and y axes -- a regression from
+    # commit 75174dd that made an "Fx" load act along y. See tests/test_force_direction.py.
     dof_offsets = np.array(
         [
             0,
             1,
-            2,  # Node 0 (iy=0, ix=0, iz=0)
-            3 * 1 + 0,
-            3 * 1 + 1,
-            3 * 1 + 2,  # Node 1 (iy=1, ix=0, iz=0) Offset=3*dy=3
+            2,  # Node 0 (ix=0, iy=0, iz=0)
+            3 * (nely + 1) + 0,
+            3 * (nely + 1) + 1,
+            3 * (nely + 1) + 2,  # Node 1 (ix=1, iy=0, iz=0) Offset=3*dx*(nely+1)
             3 * (nely + 1 + 1) + 0,
             3 * (nely + 1 + 1) + 1,
             3 * (nely + 1 + 1)
-            + 2,  # Node 2 (iy=1, ix=1, iz=0) Offset=3*(dx*(nely+1)+dy) = 3*(nely+1+1)
-            3 * (nely + 1) + 0,
-            3 * (nely + 1) + 1,
-            3 * (nely + 1)
-            + 2,  # Node 3 (iy=0, ix=1, iz=0) Offset=3*dx*(nely+1)=3*(nely+1)
+            + 2,  # Node 2 (ix=1, iy=1, iz=0) Offset=3*(dx*(nely+1)+dy) = 3*(nely+1+1)
+            3 * 1 + 0,
+            3 * 1 + 1,
+            3 * 1 + 2,  # Node 3 (ix=0, iy=1, iz=0) Offset=3*dy=3
             3 * (nelx + 1) * (nely + 1) + 0,
             3 * (nelx + 1) * (nely + 1) + 1,
             3 * (nelx + 1) * (nely + 1)
-            + 2,  # Node 4 (iy=0, ix=0, iz=1) Offset=3*dz*(nelx+1)*(nely+1)
-            3 * (nelx + 1) * (nely + 1) + 3 * 1 + 0,
-            3 * (nelx + 1) * (nely + 1) + 3 * 1 + 1,
-            3 * (nelx + 1) * (nely + 1) + 3 * 1 + 2,  # Node 5 (iy=1, ix=0, iz=1)
+            + 2,  # Node 4 (ix=0, iy=0, iz=1) Offset=3*dz*(nelx+1)*(nely+1)
+            3 * (nelx + 1) * (nely + 1) + 3 * (nely + 1) + 0,
+            3 * (nelx + 1) * (nely + 1) + 3 * (nely + 1) + 1,
+            3 * (nelx + 1) * (nely + 1) + 3 * (nely + 1) + 2,  # Node 5 (ix=1, iy=0, iz=1)
             3 * (nelx + 1) * (nely + 1) + 3 * (nely + 1 + 1) + 0,
             3 * (nelx + 1) * (nely + 1) + 3 * (nely + 1 + 1) + 1,
             3 * (nelx + 1) * (nely + 1)
             + 3 * (nely + 1 + 1)
-            + 2,  # Node 6 (iy=1, ix=1, iz=1)
-            3 * (nelx + 1) * (nely + 1) + 3 * (nely + 1) + 0,
-            3 * (nelx + 1) * (nely + 1) + 3 * (nely + 1) + 1,
+            + 2,  # Node 6 (ix=1, iy=1, iz=1)
+            3 * (nelx + 1) * (nely + 1) + 3 * 1 + 0,
+            3 * (nelx + 1) * (nely + 1) + 3 * 1 + 1,
             3 * (nelx + 1) * (nely + 1)
-            + 3 * (nely + 1)
-            + 2,  # Node 7 (iy=0, ix=1, iz=1)
+            + 3 * 1
+            + 2,  # Node 7 (ix=0, iy=1, iz=1)
         ],
         dtype=int,
     )
@@ -331,7 +341,6 @@ def build_edof(
     edofMat = edofVec[:, np.newaxis] + dof_offsets[np.newaxis, :]
 
     # Prepare iK, jK indices (1-based) for COO sparse matrix format
-    nele = nelx * nely * nelz
     iK = np.kron(edofMat, np.ones((1, 24), dtype=int)).ravel()
     jK = np.kron(edofMat, np.ones((24, 1), dtype=int)).ravel()
 
