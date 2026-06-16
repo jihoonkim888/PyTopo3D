@@ -23,6 +23,7 @@ Cut a release only when one of these holds; otherwise let changes accumulate on 
 
 - [ ] Bump `version` in `pyproject.toml` (PyPI rejects re-uploading an existing version).
 - [ ] Add a `CHANGELOG.md` section; put **breaking changes** at the top with a migration note.
+- [ ] If the release completes a Roadmap milestone, mark it **— released** in the README (heading + TOC anchor + ✅ bullets), matching the previously released milestone. The status badges are dynamic and the Zenodo badge is the *concept* DOI, so neither needs a manual bump — the roadmap marker is the only manual README edit per release.
 - [ ] For a silently-changed behaviour, emit a one-time transition warning for one release and remove it the next (see the `0.2.0` STL axis-convention change for the pattern).
 - [ ] CI (the CPU test matrix) is green on `main`.
 - [ ] For a risky breaking change, consider shipping a release candidate (e.g. `0.3.0rc1`) first.
