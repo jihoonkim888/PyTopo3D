@@ -52,6 +52,7 @@ class ComplianceEvaluator:
         H: sp.csr_matrix,
         Hs: np.ndarray,
         obstacle_mask: np.ndarray,
+        solid_mask: np.ndarray,
         E0: float = 1.0,
         Emin: float = 1e-9,
     ) -> None:
@@ -67,6 +68,7 @@ class ComplianceEvaluator:
         self.H = H
         self.Hs = Hs
         self.obstacle_mask = obstacle_mask
+        self.solid_mask: solid_mask
         self.E0 = E0
         self.Emin = Emin
 
@@ -102,12 +104,13 @@ class ComplianceEvaluator:
         dv = np.ones_like(xPhys)
 
         # Density-filter chain rule, then zero obstacle elements.
+        dc[self.solid_mask] = dv[self.solid_mask] = 0.0
         dc = (self.H * (dc.ravel(order="F") / self.Hs)).reshape(
             (nely, nelx, nelz), order="F"
         )
         dv = (self.H * (dv.ravel(order="F") / self.Hs)).reshape(
             (nely, nelx, nelz), order="F"
         )
-        dc[self.obstacle_mask] = 0.0
-        dv[self.obstacle_mask] = 0.0
+        dc[self.obstacle_mask | self.solid_mask] = 0.0
+        dv[self.obstacle_mask | self.solid_mask] = 0.0
         return c, dc, dv

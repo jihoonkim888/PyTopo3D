@@ -31,6 +31,7 @@ def optimality_criteria_update(
     Hs: Union[np.ndarray, "cp.ndarray"],
     nele: int,
     obstacle_mask: Union[np.ndarray, "cp.ndarray"],
+    solid_mask: Union[np.ndarray, "cp.ndarray"],
     design_nele: int,
     use_gpu: bool = False
 ) -> Tuple[Union[np.ndarray, "cp.ndarray"], float]:
@@ -57,6 +58,8 @@ def optimality_criteria_update(
         Total number of elements.
     obstacle_mask : ndarray or cupy.ndarray of bool
         Mask indicating obstacle elements.
+    solid_mask : ndarray or cupy.ndarray of bool
+        Mask indicating solid elements.
     design_nele : int
         Number of elements in design domain (not obstacles).
     use_gpu : bool, optional
@@ -71,7 +74,7 @@ def optimality_criteria_update(
     inputs_on_gpu = HAS_CUPY and (
         any(
             isinstance(arr, cp.ndarray)
-            for arr in [x, dc, dv, obstacle_mask, Hs]
+            for arr in [x, dc, dv, obstacle_mask, solid_mask, Hs]
         )
         or isinstance(H, cusp.csr_matrix)
     )
@@ -103,6 +106,11 @@ def optimality_criteria_update(
             obstacle_mask_gpu = obstacle_mask
         else:
             obstacle_mask_gpu = cp.asarray(obstacle_mask)
+
+        if isinstance(solid_mask, cp.ndarray):
+            solid_mask_gpu = solid_mask
+        else:
+            solid_mask_gpu = cp.asarray(solid_mask)
         
         # Create design cells mask on GPU
         design_cells_gpu = ~obstacle_mask_gpu
@@ -146,6 +154,7 @@ def optimality_criteria_update(
                 cp.minimum(1.0, x_gpu + move),
             )
             x_candidate_gpu[obstacle_mask_gpu] = 0.0
+            x_candidate_gpu[solid_mask_gpu] = 1.0
             
             # Apply filter directly using our improved apply_filter function
             # This avoids unnecessary CPU-GPU transfers
@@ -157,6 +166,7 @@ def optimality_criteria_update(
                 use_gpu=True
             )
             xPhysCandidate_gpu[obstacle_mask_gpu] = 0.0
+            xPhysCandidate_gpu[solid_mask_gpu] = 1.0
             
             # Check volume constraint (remaining on GPU)
             vol_constraint = cp.sum(xPhysCandidate_gpu[design_cells_gpu])
@@ -197,10 +207,12 @@ def optimality_criteria_update(
                 np.minimum(1.0, x + move),
             )
             x_candidate[obstacle_mask] = 0.0
+            x_candidate[solid_mask] = 1.0
             
             # Apply filter
             xPhysCandidate = apply_filter(H, x_candidate, Hs, x.shape, use_gpu=False)
             xPhysCandidate[obstacle_mask] = 0.0
+            xPhysCandidate[solid_mask] = 1.0
             
             # Check volume constraint
             if xPhysCandidate[design_cells].sum() > volfrac * design_nele:
