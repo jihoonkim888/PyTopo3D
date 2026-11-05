@@ -59,6 +59,8 @@ def top3d(
     obstacle_mask: Optional[np.ndarray] = None,
     force_field: Optional[np.ndarray] = None,
     support_mask: Optional[np.ndarray] = None,
+    solid_mask: Optional[np.ndarray] = None,
+    initial_density: Optional[np.ndarray] = None,
     tolx: float = 0.01,
     maxloop: int = 2000,
     save_history: bool = False,
@@ -83,6 +85,14 @@ def top3d(
     )
     design_nele = nele - obstacle_mask.sum()
     logger.debug(f"design elements: {design_nele}/{nele}")
+
+    solid_mask = (
+        np.zeros((nely, nelx, nelz), dtype=bool)
+        if solid_mask is None
+        else solid_mask
+    )
+    if solid_mask.sum() > design_nele * volfrac:
+        logger.warning("Solid region larger than target volume.")
 
     # History dict
     history = (
@@ -111,6 +121,7 @@ def top3d(
         F_gpu = cp.asarray(F)
         freedofs0_gpu = cp.asarray(freedofs0)
         obstacle_gpu = cp.asarray(obstacle_mask)
+        solid_gpu = cp.asarray(solid_mask)
         U_gpu = cp.zeros(ndof)
 
     # Filter
@@ -124,15 +135,19 @@ def top3d(
 
     # Initial design
     if gpu:
-        x_gpu = cp.full((nely, nelx, nelz), volfrac)
+        x_gpu = cp.full((nely, nelx, nelz), volfrac) if initial_density is None else cp.asarray(initial_density)
         x_gpu[obstacle_gpu] = 0.0
+        x_gpu[solid_gpu] = 1.0
         xPhys_gpu = apply_filter(H_gpu, x_gpu, Hs_gpu, x_gpu.shape, use_gpu=True)
         xPhys_gpu[obstacle_gpu] = 0.0
+        xPhys_gpu[solid_gpu] = 1.0
     else:
-        x = np.full((nely, nelx, nelz), volfrac)
+        x = np.full((nely, nelx, nelz), volfrac) if initial_density is None else np.asarray(initial_density)
         x[obstacle_mask] = 0.0
+        x[solid_mask] = 1.0
         xPhys = (H * x.ravel(order="F") / Hs).reshape((nely, nelx, nelz), order="F")
         xPhys[obstacle_mask] = 0.0
+        xPhys[solid_mask] = 1.0
 
     # ─────────────────────── sparsity pattern + scatter map
     logger.debug("Building global stiffness pattern & scatter map")
@@ -162,6 +177,7 @@ def top3d(
             H=H,
             Hs=Hs,
             obstacle_mask=obstacle_mask,
+            solid_mask=solid_mask,
             E0=E0,
             Emin=Emin,
         )
@@ -209,9 +225,10 @@ def top3d(
             dc_gpu = -penal * (E0 - Emin) * xPhys_gpu ** (penal - 1) * ce_gpu
             dv_gpu = cp.ones_like(xPhys_gpu)
 
+            dc_gpu[solid_gpu] = dv_gpu[solid_gpu] = 0.0
             dc_gpu = apply_filter(H_gpu, dc_gpu, Hs_gpu, xPhys_gpu.shape, use_gpu=True)
             dv_gpu = apply_filter(H_gpu, dv_gpu, Hs_gpu, xPhys_gpu.shape, use_gpu=True)
-            dc_gpu[obstacle_gpu] = dv_gpu[obstacle_gpu] = 0.0
+            dc_gpu[obstacle_gpu | solid_gpu] = dv_gpu[obstacle_gpu | solid_gpu] = 0.0
             dv_gpu += 1e-9
 
             xnew_gpu, change = optimality_criteria_update(
@@ -223,12 +240,15 @@ def top3d(
                 Hs_gpu,
                 nele,
                 obstacle_gpu,
+                solid_gpu,
                 design_nele,
                 use_gpu=True,
             )
             xnew_gpu[obstacle_gpu] = 0.0
+            xnew_gpu[solid_gpu] = 1.0
             xPhys_gpu = apply_filter(H_gpu, xnew_gpu, Hs_gpu, xnew_gpu.shape, use_gpu=True)
             xPhys_gpu[obstacle_gpu] = 0.0
+            xPhys_gpu[solid_gpu] = 1.0
             x_gpu = xnew_gpu
             current_vol = cp.mean(xPhys_gpu[~obstacle_gpu]).item()
 
@@ -246,12 +266,15 @@ def top3d(
                 Hs,
                 nele,
                 obstacle_mask,
+                solid_mask,
                 design_nele,
                 use_gpu=False,
             )
             xnew[obstacle_mask] = 0.0
+            xnew[solid_mask] = 1.0
             xPhys = (H * xnew.ravel(order="F") / Hs).reshape((nely, nelx, nelz), order="F")
             xPhys[obstacle_mask] = 0.0
+            xPhys[solid_mask] = 1.0
             x = xnew
             current_vol = xPhys[~obstacle_mask].mean()
 
