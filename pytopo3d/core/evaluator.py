@@ -68,7 +68,7 @@ class ComplianceEvaluator:
         self.H = H
         self.Hs = Hs
         self.obstacle_mask = obstacle_mask
-        self.solid_mask: solid_mask
+        self.solid_mask = solid_mask
         self.E0 = E0
         self.Emin = Emin
 
